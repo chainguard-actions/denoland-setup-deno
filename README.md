@@ -1,6 +1,6 @@
 # denoland/setup-deno
 
-Set up your GitHub Actions workflow with a specific version of Deno
+Setup Deno by installing, downloading, and adding it to the path.
 
 Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/denoland/setup-deno](https://github.com/denoland/setup-deno).
 
