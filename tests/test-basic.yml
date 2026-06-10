@@ -1,0 +1,38 @@
+name: Test basic Deno setup
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          deno-version: "2.x"
+          cache: "false"
+      - name: Assert deno-version output is set
+        env:
+          DENO_VERSION: ${{ steps.setup.outputs.deno-version }}
+        run: |
+          echo "deno-version: $DENO_VERSION"
+          if [ -z "$DENO_VERSION" ]; then
+            echo "FAIL: deno-version output is empty"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert release-channel output is set
+        env:
+          RELEASE_CHANNEL: ${{ steps.setup.outputs.release-channel }}
+        run: |
+          echo "release-channel: $RELEASE_CHANNEL"
+          if [ -z "$RELEASE_CHANNEL" ]; then
+            echo "FAIL: release-channel output is empty"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert deno binary is available
+        run: |
+          which deno
+          deno --version
+          echo "PASS"
