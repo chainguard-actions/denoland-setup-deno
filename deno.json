@@ -1,0 +1,16 @@
+{
+  "lock": {
+    "frozen": true
+  },
+  "nodeModulesDir": "auto",
+  "license": "MIT",
+  "compilerOptions": {
+    "lib": ["esnext"]
+  },
+  "exclude": [
+    "dist"
+  ],
+  "tasks": {
+    "build": "deno run -A scripts/build.ts"
+  }
+}
