@@ -10,6 +10,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 |---------|-----|-----------------|
 | v2.0.3 | [`v2.0.3`](https://github.com/chainguard-actions/denoland-setup-deno/tree/v2.0.3) | [`e95548e`](https://github.com/denoland/setup-deno/commit/e95548e56dfa95d4e1a28d6f422fafe75c4c26fb) |
 | v2.0.4 | [`v2.0.4`](https://github.com/chainguard-actions/denoland-setup-deno/tree/v2.0.4) | [`667a34c`](https://github.com/denoland/setup-deno/commit/667a34cdef165d8d2b2e98dde39547c9daac7282) |
+| v2.0.5 | [`v2.0.5`](https://github.com/chainguard-actions/denoland-setup-deno/tree/v2.0.5) | [`22d081f`](https://github.com/denoland/setup-deno/commit/22d081ff2d3a40755e97629de92e3bcbfa7cf2ed) |
 
 ## Privacy
 
