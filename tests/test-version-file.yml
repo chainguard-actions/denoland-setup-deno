@@ -1,0 +1,38 @@
+name: Test setup-deno with version file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Show version file contents
+        run: |
+          cat "$GITHUB_WORKSPACE/.dvmrc"
+      - id: setup
+        uses: .
+        with:
+          deno-version-file: ".dvmrc"
+      - name: Assert deno is in PATH
+        run: |
+          which deno || { echo "FAIL: deno not found in PATH"; exit 1; }
+          echo "PASS: deno found at $(which deno)"
+      - name: Assert deno version matches version file
+        run: |
+          VERSION=$(deno --version | head -1 | awk '{print $2}')
+          echo "actual version: $VERSION"
+          if [ "$VERSION" != "1.43.1" ]; then
+            echo "FAIL: expected version 1.43.1, got $VERSION"
+            exit 1
+          fi
+          echo "PASS: deno version is $VERSION"
+      - name: Assert deno-version output matches
+        env:
+          ACTUAL: ${{ steps.setup.outputs.deno-version }}
+        run: |
+          echo "actual deno-version output: $ACTUAL"
+          if [ "$ACTUAL" != "1.43.1" ]; then
+            echo "FAIL: expected deno-version output '1.43.1', got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS"

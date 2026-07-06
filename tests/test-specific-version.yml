@@ -1,0 +1,45 @@
+name: Test setup-deno with specific version
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          deno-version: "2.1.4"
+      - name: Assert deno is in PATH
+        run: |
+          which deno || { echo "FAIL: deno not found in PATH"; exit 1; }
+          echo "PASS: deno found at $(which deno)"
+      - name: Assert deno version matches expected
+        run: |
+          VERSION=$(deno --version | head -1 | awk '{print $2}')
+          echo "actual version: $VERSION"
+          if [ "$VERSION" != "2.1.4" ]; then
+            echo "FAIL: expected version 2.1.4, got $VERSION"
+            exit 1
+          fi
+          echo "PASS: deno version is $VERSION"
+      - name: Assert deno-version output matches
+        env:
+          ACTUAL: ${{ steps.setup.outputs.deno-version }}
+        run: |
+          echo "actual deno-version output: $ACTUAL"
+          if [ "$ACTUAL" != "2.1.4" ]; then
+            echo "FAIL: expected deno-version output '2.1.4', got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert release-channel is stable
+        env:
+          ACTUAL: ${{ steps.setup.outputs.release-channel }}
+        run: |
+          echo "actual release-channel: $ACTUAL"
+          if [ "$ACTUAL" != "stable" ]; then
+            echo "FAIL: expected release-channel 'stable', got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS"

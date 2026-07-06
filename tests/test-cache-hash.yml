@@ -1,0 +1,40 @@
+name: Test cache-hash input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          deno-version: "2.x"
+          cache: "false"
+          cache-hash: "abc123customhash"
+      - name: Assert deno is installed
+        run: |
+          echo "deno-version: ${{ steps.action.outputs.deno-version }}"
+          if [ -z "${{ steps.action.outputs.deno-version }}" ]; then
+            echo "FAIL: deno-version output is empty"
+            exit 1
+          fi
+          echo "PASS: deno-version output is set"
+      - name: Assert deno binary works
+        run: |
+          deno --version
+          if [ $? -ne 0 ]; then
+            echo "FAIL: deno binary not functional"
+            exit 1
+          fi
+          echo "PASS: deno binary works"
+      - name: Assert release-channel output
+        env:
+          ACTUAL: ${{ steps.action.outputs.release-channel }}
+        run: |
+          echo "actual release-channel: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: release-channel output is empty"
+            exit 1
+          fi
+          echo "PASS: release-channel output is set"
