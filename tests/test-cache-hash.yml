@@ -14,8 +14,10 @@ jobs:
           cache-hash: "abc123testcachehash"
       - name: Assert deno is installed
         run: |
-          if ! command -v deno &> /dev/null; then
-            echo "FAIL: deno binary not found in PATH"
+          echo "deno-version: ${{ steps.action.outputs.deno-version }}"
+          echo "release-channel: ${{ steps.action.outputs.release-channel }}"
+          if ! command -v deno &>/dev/null; then
+            echo "FAIL: deno binary not found on PATH"
             exit 1
           fi
           echo "PASS: deno is installed"
@@ -29,9 +31,13 @@ jobs:
             exit 1
           fi
           echo "PASS: deno-version output is set to $ACTUAL"
-      - name: Assert cache-hit output is present
+      - name: Assert release-channel output is set
         env:
-          ACTUAL: ${{ steps.action.outputs.cache-hit }}
+          ACTUAL: ${{ steps.action.outputs.release-channel }}
         run: |
-          echo "cache-hit: $ACTUAL"
-          echo "PASS: cache-hit output checked (value: $ACTUAL)"
+          echo "actual: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: release-channel output is empty"
+            exit 1
+          fi
+          echo "PASS: release-channel output is set to $ACTUAL"

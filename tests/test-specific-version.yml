@@ -1,4 +1,4 @@
-name: Test basic usage (default deno-version)
+name: Test specific pinned deno version
 on:
   workflow_dispatch:
 jobs:
@@ -16,33 +16,34 @@ jobs:
       - id: action
         uses: .
         with:
-          deno-version: "2.x"
-      - name: Assert deno-version output is set
+          deno-version: "2.1.0"
+      - name: Assert deno-version output matches requested version
         env:
           DENO_VERSION: ${{ steps.action.outputs.deno-version }}
         run: |
           echo "deno-version: $DENO_VERSION"
-          if [ -z "$DENO_VERSION" ]; then
-            echo "FAIL: deno-version output is empty"
+          if [ "$DENO_VERSION" != "2.1.0" ]; then
+            echo "FAIL: expected deno-version '2.1.0' but got '$DENO_VERSION'"
             exit 1
           fi
           echo "PASS: deno-version=$DENO_VERSION"
-      - name: Assert release-channel output is set
+      - name: Assert release-channel is stable
         env:
           RELEASE_CHANNEL: ${{ steps.action.outputs.release-channel }}
         run: |
           echo "release-channel: $RELEASE_CHANNEL"
-          if [ -z "$RELEASE_CHANNEL" ]; then
-            echo "FAIL: release-channel output is empty"
+          if [ "$RELEASE_CHANNEL" != "stable" ]; then
+            echo "FAIL: expected release-channel 'stable' but got '$RELEASE_CHANNEL'"
             exit 1
           fi
           echo "PASS: release-channel=$RELEASE_CHANNEL"
-      - name: Assert deno binary is on PATH
+      - name: Assert deno binary reports correct version
         run: |
           echo "PATH: $PATH"
-          if ! command -v deno >/dev/null 2>&1; then
-            echo "FAIL: deno not found on PATH"
+          ACTUAL="$(deno --version | grep '^deno ' | awk '{print $2}')"
+          echo "actual deno version from binary: $ACTUAL"
+          if [ "$ACTUAL" != "2.1.0" ]; then
+            echo "FAIL: expected binary version '2.1.0' but got '$ACTUAL'"
             exit 1
           fi
-          INSTALLED_VERSION="$(deno --version | head -1)"
-          echo "PASS: $INSTALLED_VERSION"
+          echo "PASS"

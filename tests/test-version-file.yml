@@ -1,29 +1,42 @@
-name: Test deno-version-file input
+name: Test deno-version-file input (.dvmrc)
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      RUNNER_TOOL_CACHE: /tmp/runner-tool-cache
+      RUNNER_TEMP: /tmp/runner-temp
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare tool cache directories
+        run: |
+          mkdir -p /tmp/runner-tool-cache
+          mkdir -p /tmp/runner-temp
+      - name: Show fixture .dvmrc contents
+        run: |
+          echo "Contents of fixture .dvmrc:"
+          cat "$GITHUB_WORKSPACE/tests/fixtures/.dvmrc"
       - id: action
         uses: .
         with:
-          deno-version-file: "${{ github.workspace }}/actions/hardened/denoland--setup-deno/v2.0.4/tests/fixtures/.dvmrc"
-      - name: Assert deno is installed
-        run: |
-          if ! command -v deno &> /dev/null; then
-            echo "FAIL: deno binary not found in PATH"
-            exit 1
-          fi
-          echo "PASS: deno is installed"
-      - name: Assert deno-version output is set
+          deno-version-file: "tests/fixtures/.dvmrc"
+      - name: Assert deno-version output matches version in file
         env:
-          ACTUAL: ${{ steps.action.outputs.deno-version }}
+          DENO_VERSION: ${{ steps.action.outputs.deno-version }}
         run: |
-          echo "actual: $ACTUAL"
-          if [ -z "$ACTUAL" ]; then
-            echo "FAIL: deno-version output is empty"
+          echo "deno-version: $DENO_VERSION"
+          if [ "$DENO_VERSION" != "2.1.0" ]; then
+            echo "FAIL: expected deno-version '2.1.0' but got '$DENO_VERSION'"
             exit 1
           fi
-          echo "PASS: deno-version output is set to $ACTUAL"
+          echo "PASS: deno-version=$DENO_VERSION"
+      - name: Assert deno binary reports correct version
+        run: |
+          ACTUAL="$(deno --version | grep '^deno ' | awk '{print $2}')"
+          echo "actual deno version from binary: $ACTUAL"
+          if [ "$ACTUAL" != "2.1.0" ]; then
+            echo "FAIL: expected binary version '2.1.0' but got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS"

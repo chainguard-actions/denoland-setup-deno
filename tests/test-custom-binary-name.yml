@@ -1,4 +1,4 @@
-name: Test basic usage (default deno-version)
+name: Test custom deno binary name
 on:
   workflow_dispatch:
 jobs:
@@ -17,6 +17,7 @@ jobs:
         uses: .
         with:
           deno-version: "2.x"
+          deno-binary-name: "deno2"
       - name: Assert deno-version output is set
         env:
           DENO_VERSION: ${{ steps.action.outputs.deno-version }}
@@ -27,22 +28,12 @@ jobs:
             exit 1
           fi
           echo "PASS: deno-version=$DENO_VERSION"
-      - name: Assert release-channel output is set
-        env:
-          RELEASE_CHANNEL: ${{ steps.action.outputs.release-channel }}
-        run: |
-          echo "release-channel: $RELEASE_CHANNEL"
-          if [ -z "$RELEASE_CHANNEL" ]; then
-            echo "FAIL: release-channel output is empty"
-            exit 1
-          fi
-          echo "PASS: release-channel=$RELEASE_CHANNEL"
-      - name: Assert deno binary is on PATH
+      - name: Assert custom binary name is on PATH
         run: |
           echo "PATH: $PATH"
-          if ! command -v deno >/dev/null 2>&1; then
-            echo "FAIL: deno not found on PATH"
+          if ! command -v deno2 >/dev/null 2>&1; then
+            echo "FAIL: deno2 not found on PATH"
             exit 1
           fi
-          INSTALLED_VERSION="$(deno --version | head -1)"
+          INSTALLED_VERSION="$(deno2 --version | head -1)"
           echo "PASS: $INSTALLED_VERSION"
