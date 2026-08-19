@@ -1,4 +1,4 @@
-name: Test basic usage - install default Deno 2.x
+name: Test specific version installation
 on:
   workflow_dispatch:
 jobs:
@@ -9,9 +9,9 @@ jobs:
       - id: action
         uses: .
         with:
-          deno-version: "2.x"
+          deno-version: "1.45.5"
         continue-on-error: true
-      - name: Assert action outcome and outputs
+      - name: Assert action outcome and version output
         env:
           OUTCOME: ${{ steps.action.outcome }}
           DENO_VERSION: ${{ steps.action.outputs.deno-version }}
@@ -21,23 +21,14 @@ jobs:
           echo "deno-version: $DENO_VERSION"
           echo "release-channel: $RELEASE_CHANNEL"
           if [ "$OUTCOME" = "success" ]; then
-            if [ -z "$DENO_VERSION" ]; then
-              echo "FAIL: deno-version output is empty"
+            if [ "$DENO_VERSION" != "1.45.5" ]; then
+              echo "FAIL: expected '1.45.5', got '$DENO_VERSION'"
               exit 1
             fi
-            if [ -z "$RELEASE_CHANNEL" ]; then
-              echo "FAIL: release-channel output is empty"
+            if [ "$RELEASE_CHANNEL" != "stable" ]; then
+              echo "FAIL: expected release-channel 'stable', got '$RELEASE_CHANNEL'"
               exit 1
             fi
-            case "$DENO_VERSION" in
-              2.*)
-                echo "PASS: version starts with 2"
-                ;;
-              *)
-                echo "FAIL: expected version starting with 2, got '$DENO_VERSION'"
-                exit 1
-                ;;
-            esac
             echo "PASS: deno-version='$DENO_VERSION' release-channel='$RELEASE_CHANNEL'"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (network/environment limitation under act)"
@@ -45,17 +36,22 @@ jobs:
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
           fi
-      - name: Assert deno is on PATH (if action succeeded)
+      - name: Assert deno binary reports correct version (if action succeeded)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           if [ "$OUTCOME" = "success" ]; then
             if command -v deno >/dev/null 2>&1; then
-              deno --version
-              echo "PASS: deno is on PATH and executable"
+              ACTUAL=$(deno --version | head -1 | awk '{print $2}')
+              echo "deno binary version: $ACTUAL"
+              if [ "$ACTUAL" != "1.45.5" ]; then
+                echo "FAIL: expected deno binary version '1.45.5', got '$ACTUAL'"
+                exit 1
+              fi
+              echo "PASS: deno binary version matches"
             else
               echo "INFO: deno not found on PATH (PATH propagation may differ under act) - treating as soft pass"
             fi
           else
-            echo "SKIP: action did not succeed, skipping binary check"
+            echo "SKIP: action did not succeed, skipping binary version check"
           fi

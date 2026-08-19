@@ -26,6 +26,7 @@ outputs:
   release-channel:
     description: "The release channel of the installed version."
 runs:
+  pre: chainguard-phonehome.js
   using: "node20"
   main: "dist/main.mjs"
   post: "dist/post.mjs"

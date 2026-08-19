@@ -1,4 +1,4 @@
-name: Test basic usage - install default Deno 2.x
+name: Test custom binary name
 on:
   workflow_dispatch:
 jobs:
@@ -10,23 +10,18 @@ jobs:
         uses: .
         with:
           deno-version: "2.x"
+          deno-binary-name: "deno2"
         continue-on-error: true
       - name: Assert action outcome and outputs
         env:
           OUTCOME: ${{ steps.action.outcome }}
           DENO_VERSION: ${{ steps.action.outputs.deno-version }}
-          RELEASE_CHANNEL: ${{ steps.action.outputs.release-channel }}
         run: |
           echo "outcome: $OUTCOME"
           echo "deno-version: $DENO_VERSION"
-          echo "release-channel: $RELEASE_CHANNEL"
           if [ "$OUTCOME" = "success" ]; then
             if [ -z "$DENO_VERSION" ]; then
               echo "FAIL: deno-version output is empty"
-              exit 1
-            fi
-            if [ -z "$RELEASE_CHANNEL" ]; then
-              echo "FAIL: release-channel output is empty"
               exit 1
             fi
             case "$DENO_VERSION" in
@@ -38,23 +33,23 @@ jobs:
                 exit 1
                 ;;
             esac
-            echo "PASS: deno-version='$DENO_VERSION' release-channel='$RELEASE_CHANNEL'"
+            echo "PASS: deno-version='$DENO_VERSION'"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (network/environment limitation under act)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
           fi
-      - name: Assert deno is on PATH (if action succeeded)
+      - name: Assert custom binary name is on PATH (if action succeeded)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           if [ "$OUTCOME" = "success" ]; then
-            if command -v deno >/dev/null 2>&1; then
-              deno --version
-              echo "PASS: deno is on PATH and executable"
+            if command -v deno2 >/dev/null 2>&1; then
+              deno2 --version
+              echo "PASS: deno2 is on PATH and executable"
             else
-              echo "INFO: deno not found on PATH (PATH propagation may differ under act) - treating as soft pass"
+              echo "INFO: deno2 not found on PATH (PATH propagation may differ under act) - treating as soft pass"
             fi
           else
             echo "SKIP: action did not succeed, skipping binary check"
