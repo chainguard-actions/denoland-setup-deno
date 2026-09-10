@@ -12,32 +12,31 @@ jobs:
           deno-version: "2.x"
           cache: "true"
           cache-hash: "abc123customhash"
-      - name: Assert deno is installed
-        run: |
-          echo "deno-version: ${{ steps.action.outputs.deno-version }}"
-          echo "release-channel: ${{ steps.action.outputs.release-channel }}"
-          if ! command -v deno &>/dev/null; then
-            echo "FAIL: deno binary not found on PATH"
-            exit 1
-          fi
-          echo "PASS: deno is installed"
       - name: Assert deno-version output is set
         env:
-          ACTUAL: ${{ steps.action.outputs.deno-version }}
+          DENO_VERSION: ${{ steps.action.outputs.deno-version }}
         run: |
-          echo "actual: $ACTUAL"
-          if [ -z "$ACTUAL" ]; then
+          echo "deno-version: $DENO_VERSION"
+          if [ -z "$DENO_VERSION" ]; then
             echo "FAIL: deno-version output is empty"
             exit 1
           fi
-          echo "PASS: deno-version output is '$ACTUAL'"
+          echo "PASS: deno-version is '$DENO_VERSION'"
+      - name: Assert deno binary is available
+        run: |
+          if ! command -v deno >/dev/null 2>&1; then
+            echo "FAIL: deno binary not found in PATH"
+            exit 1
+          fi
+          echo "PASS: deno is available at $(command -v deno)"
+          deno --version
       - name: Assert release-channel output is set
         env:
-          ACTUAL: ${{ steps.action.outputs.release-channel }}
+          RELEASE_CHANNEL: ${{ steps.action.outputs.release-channel }}
         run: |
-          echo "actual: $ACTUAL"
-          if [ -z "$ACTUAL" ]; then
+          echo "release-channel: $RELEASE_CHANNEL"
+          if [ -z "$RELEASE_CHANNEL" ]; then
             echo "FAIL: release-channel output is empty"
             exit 1
           fi
-          echo "PASS: release-channel output is '$ACTUAL'"
+          echo "PASS: release-channel is '$RELEASE_CHANNEL'"
