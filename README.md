@@ -1,16 +1,138 @@
-# denoland/setup-deno
+# setup-deno
 
-Setup Deno by installing, downloading, and adding it to the path.
+Set up your GitHub Actions workflow with a specific version of Deno.
 
-Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/denoland/setup-deno](https://github.com/denoland/setup-deno).
+## Usage
 
-## Versions
+### Latest stable for a major
 
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v2.0.3 | [`v2.0.3`](https://github.com/chainguard-actions/denoland-setup-deno/tree/v2.0.3) | [`e95548e`](https://github.com/denoland/setup-deno/commit/e95548e56dfa95d4e1a28d6f422fafe75c4c26fb) |
-| v2.0.4 | [`v2.0.4`](https://github.com/chainguard-actions/denoland-setup-deno/tree/v2.0.4) | [`667a34c`](https://github.com/denoland/setup-deno/commit/667a34cdef165d8d2b2e98dde39547c9daac7282) |
-| v2.0.5 | [`v2.0.5`](https://github.com/chainguard-actions/denoland-setup-deno/tree/v2.0.5) | [`22d081f`](https://github.com/denoland/setup-deno/commit/22d081ff2d3a40755e97629de92e3bcbfa7cf2ed) |
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version: v1.x
+```
+
+### Latest stable for any major
+
+Targets the latest major, minor and patch version of Deno.
+
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version: vx.x.x
+```
+
+### Specific stable
+
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version: "1.8.2"
+```
+
+### Semver range
+
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version: "~1.7"
+```
+
+### Latest canary
+
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version: canary
+```
+
+### Specific canary
+
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version: e7b7129b7a92b7500ded88f8f5baa25a7f59e56e
+```
+
+### Latest release candidate
+
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version: rc
+```
+
+### Specific release candidate
+
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version: 2.0.0-rc.1
+```
+
+### Version from file
+
+The extension can also automatically read the version file from
+[`.tool-versions`](https://asdf-vm.com/manage/configuration.html#tool-versions)
+
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version-file: .tool-versions
+```
+
+The extension can also automatically read the file from
+[`dvm`](https://github.com/justjavac/dvm).
+
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version-file: .dvmrc
+```
+
+### Specifying binary name
+
+This is useful when you want to install different versions of Deno side by side.
+
+```yaml
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version: canary
+    deno-binary-name: deno_canary
+```
+
+### Determining the release channel
+
+You can determine the release channel reading back the `release-channel` output.
+
+Valid values are `stable`, `canary` and `rc`.
+
+```yaml
+- uses: denoland/setup-deno@v1
+  id: deno
+  with:
+    deno-version: canary
+
+- run: echo "Deno release channel is ${{ steps.deno.outputs.release-channel }}"
+```
+
+### Determining the installed version
+
+You can determine the installed version reading back the `deno-version` output.
+
+For canary versions, the output will be in the form `0.0.0-GIT_HASH`.
+
+For stable and rc versions, the output will be the regular semver version
+number.
+
+```yaml
+- uses: denoland/setup-deno@v1
+  id: deno
+  with:
+    deno-version: canary
+
+- run: echo "Deno version is ${{ steps.deno.outputs.deno-version }}"
+```
 
 ## Privacy
 

@@ -1,0 +1,58 @@
+name: Test version file input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      RUNNER_TOOL_CACHE: /tmp/tool-cache
+      RUNNER_TEMP: /tmp/runner-temp
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare runner directories
+        run: |
+          mkdir -p /tmp/tool-cache
+          mkdir -p /tmp/runner-temp
+      - id: action
+        uses: .
+        with:
+          deno-version-file: "tests/fixtures/.dvmrc"
+      - name: Assert deno-version output is set
+        env:
+          DENO_VERSION: ${{ steps.action.outputs.deno-version }}
+        run: |
+          echo "deno-version: $DENO_VERSION"
+          if [ -z "$DENO_VERSION" ]; then
+            echo "FAIL: deno-version output is empty"
+            exit 1
+          fi
+          if [ "$DENO_VERSION" != "2.0.0" ]; then
+            echo "FAIL: expected deno-version '2.0.0', got '$DENO_VERSION'"
+            exit 1
+          fi
+          echo "PASS: deno-version is '2.0.0'"
+      - name: Assert is-canary is false
+        env:
+          IS_CANARY: ${{ steps.action.outputs.is-canary }}
+        run: |
+          echo "is-canary: $IS_CANARY"
+          if [ "$IS_CANARY" != "false" ]; then
+            echo "FAIL: expected is-canary to be 'false', got '$IS_CANARY'"
+            exit 1
+          fi
+          echo "PASS: is-canary is false"
+      - name: Assert release-channel is stable
+        env:
+          RELEASE_CHANNEL: ${{ steps.action.outputs.release-channel }}
+        run: |
+          echo "release-channel: $RELEASE_CHANNEL"
+          if [ "$RELEASE_CHANNEL" != "stable" ]; then
+            echo "FAIL: expected release-channel to be 'stable', got '$RELEASE_CHANNEL'"
+            exit 1
+          fi
+          echo "PASS: release-channel is stable"
+      - name: Assert deno binary works
+        run: |
+          which deno
+          deno --version
+          echo "PASS: deno is available on PATH"
